@@ -19,7 +19,7 @@ import static jakarta.persistence.GenerationType.SEQUENCE;
 public class UserEntity {
     @Id
     @GeneratedValue(strategy = SEQUENCE)
-    private Long id;
+    private Long userId;
     private String firstName;
     private String lastName;
     private String email;

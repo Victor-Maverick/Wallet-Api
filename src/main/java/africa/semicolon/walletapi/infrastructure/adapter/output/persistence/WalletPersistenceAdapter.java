@@ -5,7 +5,6 @@ import africa.semicolon.walletapi.domain.model.Wallet;
 import africa.semicolon.walletapi.infrastructure.adapter.persistence.entities.WalletEntity;
 import africa.semicolon.walletapi.infrastructure.adapter.persistence.mapper.WalletPersistenceMapper;
 import africa.semicolon.walletapi.infrastructure.adapter.persistence.repository.WalletRepository;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Optional;

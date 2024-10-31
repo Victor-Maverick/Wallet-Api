@@ -13,9 +13,8 @@ import java.math.BigDecimal;
 @Builder
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Data {
-    private String status;
     private String reference;
-    private BigDecimal amount;
+    private double amount;
     @JsonProperty("authorization_url")
     private String authorizationUrl;
 }

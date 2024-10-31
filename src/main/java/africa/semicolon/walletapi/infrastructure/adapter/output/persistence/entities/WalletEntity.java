@@ -20,7 +20,7 @@ import static jakarta.persistence.GenerationType.SEQUENCE;
 public class WalletEntity {
     @Id
     @GeneratedValue(strategy = SEQUENCE)
-    public Long id;
+    public Long walletId;
     private BigDecimal balance;
     private String pin;
 }

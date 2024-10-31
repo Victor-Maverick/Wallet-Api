@@ -11,22 +11,17 @@ import africa.semicolon.walletapi.infrastructure.adapter.persistence.repository.
 import africa.semicolon.walletapi.infrastructure.adapter.persistence.repository.WalletRepository;
 import lombok.RequiredArgsConstructor;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 @RequiredArgsConstructor
 public class UserPersistenceAdapter implements UserOutputPort {
     private final UserRepository userRepository;
     private final UserPersistenceMapper userPersistenceMapper;
-    private final WalletRepository walletRepository;
-    private final WalletPersistenceMapper walletPersistenceMapper;
 
     @Override
     public User save(User user) {
-        UserEntity userEntity = userPersistenceMapper.toUserEntity(user);
-        userEntity = userRepository.save(userEntity);
-        Wallet wallet = new Wallet();
-        WalletEntity walletEntity = walletPersistenceMapper.toWalletEntity(wallet);
-        this.walletRepository.save(walletEntity);
+        UserEntity userEntity = userRepository.save(userPersistenceMapper.toUserEntity(user));
         return userPersistenceMapper.toUser(userEntity);
     }
 
@@ -50,5 +45,10 @@ public class UserPersistenceAdapter implements UserOutputPort {
     public void deleteUser(User user) {
         final UserEntity userEntity = userPersistenceMapper.toUserEntity(user);
         this.userRepository.delete(userEntity);
+    }
+
+    @Override
+    public boolean existsByEmail(String email) {
+        return userRepository.existsByEmail(email);
     }
 }
