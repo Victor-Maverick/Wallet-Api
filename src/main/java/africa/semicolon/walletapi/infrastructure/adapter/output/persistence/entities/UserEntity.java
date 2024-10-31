@@ -1,4 +1,4 @@
-package africa.semicolon.walletapi.infrastructure.adapter.persistence.entities;
+package africa.semicolon.walletapi.infrastructure.adapter.output.persistence.entities;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

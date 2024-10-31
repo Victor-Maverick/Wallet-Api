@@ -1,6 +1,6 @@
-package africa.semicolon.walletapi.infrastructure.adapter.persistence.repository;
+package africa.semicolon.walletapi.infrastructure.adapter.output.persistence.repository;
 
-import africa.semicolon.walletapi.infrastructure.adapter.persistence.entities.UserEntity;
+import africa.semicolon.walletapi.infrastructure.adapter.output.persistence.entities.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

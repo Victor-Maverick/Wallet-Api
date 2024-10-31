@@ -1,2 +1,5 @@
-package africa.semicolon.walletapi.domain.constants;public class Role {
+package africa.semicolon.walletapi.domain.constants;
+
+public enum Role {
+    USER, ADMIN;
 }

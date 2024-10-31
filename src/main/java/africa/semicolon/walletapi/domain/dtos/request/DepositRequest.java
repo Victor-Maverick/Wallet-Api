@@ -5,14 +5,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.math.BigDecimal;
-
 @Setter
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
 public class DepositRequest {
-    private BigDecimal amount;
+    private double amount;
     private Long walletId;
     private String email;
 }

@@ -1,5 +1,7 @@
 package africa.semicolon.walletapi.application.ports.input.userUseCases;
 
-public interface AssignRoleUseCase {
-    void assignRole(String email, String role);
+import africa.semicolon.walletapi.domain.model.User;
+
+public interface RegisterAdminUseCase {
+    User registerAdmin(User user);
 }

@@ -1,5 +1,6 @@
 package africa.semicolon.walletapi.domain.dtos.response;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 
 @Builder
@@ -7,8 +8,9 @@ import lombok.*;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class VerifyPaymentResponse {
     private boolean status;
     private String message;
-    private Data data;
+    private VerifyData data;
 }

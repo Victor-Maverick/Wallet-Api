@@ -1,4 +1,4 @@
-package africa.semicolon.walletapi.application.ports.input.paymentUseCases;
+package africa.semicolon.walletapi.application.ports.input.paymentUseCases.paystackUseCases;
 
 import africa.semicolon.walletapi.domain.dtos.response.VerifyPaymentResponse;
 

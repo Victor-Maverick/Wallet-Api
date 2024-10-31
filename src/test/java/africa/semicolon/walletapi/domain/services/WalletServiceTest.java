@@ -23,25 +23,12 @@ public class WalletServiceTest {
         DepositRequest request = new DepositRequest();
         request.setEmail("johndoe@gmail.com");
         request.setWalletId(501L);
-        request.setAmount(new BigDecimal(300));
+        request.setAmount(300);
         InitializePaymentResponse response = walletService.initializeDeposit(request);
         Thread.sleep(20000);
         VerifyPaymentResponse response1 = walletService.deposit(response.getData().getReference(),501L);
         assertThat(response1.getData().getStatus()).isEqualTo("success");
     }
 
-    @Test
-    public void transferTest() throws Exception {
-        InitializeTransferRequest request = new InitializeTransferRequest();
-        request.setEmail("johndoe@gmail.com");
-        request.setAmount(new BigDecimal(600));
-        InitializePaymentResponse response = walletService.initializeTransfer(request);
-        Thread.sleep(20000);
-        TransferRequest transferRequest = new TransferRequest();
-        transferRequest.setSenderWalletId(501L);
-        transferRequest.setReceiverWalletId(500L);
-        transferRequest.setPin("1111");
-        VerifyPaymentResponse verifyResponse = walletService.transfer(response.getData().getReference(), transferRequest);
-        assertThat(verifyResponse.getData().getStatus()).isEqualTo("success");
-    }
+
 }

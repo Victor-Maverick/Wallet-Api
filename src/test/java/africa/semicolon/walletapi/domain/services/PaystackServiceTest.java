@@ -1,10 +1,13 @@
 package africa.semicolon.walletapi.domain.services;
 
 import africa.semicolon.walletapi.domain.dtos.request.InitializePaymentRequest;
+import africa.semicolon.walletapi.domain.dtos.request.InitializeTransferRequest;
 import africa.semicolon.walletapi.domain.dtos.response.InitializePaymentResponse;
+import africa.semicolon.walletapi.domain.dtos.response.InitializeTransferResponse;
 import africa.semicolon.walletapi.domain.dtos.response.VerifyPaymentResponse;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.web.client.RestTemplate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -14,7 +17,7 @@ public class PaystackServiceTest {
 
 
     public PaystackServiceTest() {
-        this.paystackService = new PaystackService();
+        this.paystackService = new PaystackService(new RestTemplate());
     }
 
     @Test
@@ -38,6 +41,16 @@ public class PaystackServiceTest {
         assertThat(response).isNotNull();
         System.out.println(response.getData());
         assertThat(response.getData()).isNotNull();
+    }
+    @Test
+    public void testInitializeTransfer(){
+        InitializeTransferRequest request = new InitializeTransferRequest();
+        request.setReason("test reason");
+        request.setAmount(100.00);
+        request.setSenderWalletId(52L);
+        request.setReceiverWalletId(102L);
+        InitializeTransferResponse response = paystackService.initializeTransfer(request);
+        assertThat(response).isNotNull();
     }
 
 

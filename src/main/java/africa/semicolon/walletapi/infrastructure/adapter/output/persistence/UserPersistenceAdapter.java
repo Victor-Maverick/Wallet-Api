@@ -1,18 +1,15 @@
-package africa.semicolon.walletapi.infrastructure.adapter;
+package africa.semicolon.walletapi.infrastructure.adapter.output.persistence;
 
 import africa.semicolon.walletapi.application.ports.output.UserOutputPort;
 import africa.semicolon.walletapi.domain.model.User;
-import africa.semicolon.walletapi.domain.model.Wallet;
-import africa.semicolon.walletapi.infrastructure.adapter.persistence.entities.UserEntity;
-import africa.semicolon.walletapi.infrastructure.adapter.persistence.entities.WalletEntity;
-import africa.semicolon.walletapi.infrastructure.adapter.persistence.mapper.UserPersistenceMapper;
-import africa.semicolon.walletapi.infrastructure.adapter.persistence.mapper.WalletPersistenceMapper;
-import africa.semicolon.walletapi.infrastructure.adapter.persistence.repository.UserRepository;
-import africa.semicolon.walletapi.infrastructure.adapter.persistence.repository.WalletRepository;
+import africa.semicolon.walletapi.infrastructure.adapter.output.persistence.entities.UserEntity;
+import africa.semicolon.walletapi.infrastructure.adapter.output.persistence.mapper.UserPersistenceMapper;
+import africa.semicolon.walletapi.infrastructure.adapter.output.persistence.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 
-import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 public class UserPersistenceAdapter implements UserOutputPort {
@@ -50,5 +47,13 @@ public class UserPersistenceAdapter implements UserOutputPort {
     @Override
     public boolean existsByEmail(String email) {
         return userRepository.existsByEmail(email);
+    }
+
+    @Override
+    public List<User> getAllUsers() {
+        List<UserEntity> userEntityList = userRepository.findAll();
+        return userEntityList.stream()
+                .map(userPersistenceMapper::toUser)
+                .collect(Collectors.toList());
     }
 }

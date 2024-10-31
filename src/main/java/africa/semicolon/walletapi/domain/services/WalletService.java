@@ -1,6 +1,7 @@
 package africa.semicolon.walletapi.domain.services;
 
 import africa.semicolon.walletapi.application.ports.input.walletUseCases.*;
+import africa.semicolon.walletapi.application.ports.output.TransactionOutputPort;
 import africa.semicolon.walletapi.application.ports.output.WalletOutputPort;
 import africa.semicolon.walletapi.domain.dtos.request.DepositRequest;
 import africa.semicolon.walletapi.domain.dtos.request.InitializePaymentRequest;
@@ -11,28 +12,46 @@ import africa.semicolon.walletapi.domain.dtos.response.VerifyPaymentResponse;
 import africa.semicolon.walletapi.domain.exception.IncorrectPinException;
 import africa.semicolon.walletapi.domain.exception.InsufficientFundsException;
 import africa.semicolon.walletapi.domain.exception.WalletNoFoundException;
+import africa.semicolon.walletapi.domain.model.Transaction;
 import africa.semicolon.walletapi.domain.model.Wallet;
+import lombok.AllArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 
+import java.math.BigDecimal;
+import java.util.List;
 
-public class WalletService implements InitializeDepositUseCase,DepositUseCase, TransferUseCase, GetWalletUseCase, InitializeTransferUseCase {
+import static africa.semicolon.walletapi.domain.constants.TransactionType.CREDIT;
+
+@AllArgsConstructor
+public class WalletService implements InitializeDepositUseCase,DepositUseCase, TransferUseCase, GetWalletUseCase {
 
     private final WalletOutputPort walletOutputPort;
     private final PaystackService paystackService;
+    private final TransactionOutputPort transactionOutputPort;
 
-
-    public WalletService(WalletOutputPort walletOutputPort, PaystackService paystackService) {
-        this.paystackService = paystackService;
-        this.walletOutputPort = walletOutputPort;
-    }
 
     @Override
     public VerifyPaymentResponse deposit(String reference, Long walletId) throws Exception {
         VerifyPaymentResponse verificationResponse = paystackService.Verification(reference);
         Wallet wallet = getWallet(walletId);
-        wallet.setBalance(wallet.getBalance().add(verificationResponse.getData().getAmount()));
+        BigDecimal amount = BigDecimal.valueOf(verificationResponse.getData().getAmount());
+        wallet.setBalance(wallet.getBalance().add(amount));
+        Transaction transaction = buildAndSaveTransaction(amount);
+        List<Transaction> transactions = wallet.getTransactions();
+        transactions.add(transaction);
+        wallet.setTransactions(transactions);
         walletOutputPort.saveWallet(wallet);
         return verificationResponse;
     }
+
+    private @NotNull Transaction buildAndSaveTransaction(BigDecimal amount) {
+        Transaction transaction = new Transaction();
+        transaction.setType(CREDIT);
+        transaction.setAmount(amount);
+        transactionOutputPort.save(transaction);
+        return transaction;
+    }
+
 
     @Override
     public Wallet getWallet(Long id) {
@@ -43,21 +62,13 @@ public class WalletService implements InitializeDepositUseCase,DepositUseCase, T
     public InitializePaymentResponse initializeDeposit(DepositRequest request) {
         InitializePaymentRequest paymentRequest = new InitializePaymentRequest();
         paymentRequest.setEmail(request.getEmail());
-        paymentRequest.setAmount(request.getAmount().doubleValue());
+        paymentRequest.setAmount(request.getAmount());
         InitializePaymentResponse initializationResponse = paystackService.initializePayment(paymentRequest);
-        System.out.println(initializationResponse.getData().getAuthorizationUrl());
+        System.out.println("Click this link to verify: "+initializationResponse.getData().getAuthorizationUrl());
         return initializationResponse;
     }
 
-    @Override
-    public InitializePaymentResponse initializeTransfer(InitializeTransferRequest request) {
-        InitializePaymentRequest paymentRequest = new InitializePaymentRequest();
-        paymentRequest.setEmail(request.getEmail());
-        paymentRequest.setAmount(request.getAmount().doubleValue());
-        InitializePaymentResponse initializationResponse = paystackService.initializePayment(paymentRequest);
-        System.out.println(initializationResponse.getData().getAuthorizationUrl());
-        return initializationResponse;
-    }
+
 
     @Override
     public VerifyPaymentResponse transfer(String reference, TransferRequest transferRequest) {
@@ -67,11 +78,11 @@ public class WalletService implements InitializeDepositUseCase,DepositUseCase, T
         Wallet receiverWallet = getWallet(transferRequest.getReceiverWalletId());
         try {
             VerifyPaymentResponse verificationResponse = paystackService.Verification(reference);
-            if (senderWallet.getBalance().compareTo(verificationResponse.getData().getAmount()) < 0)
+            if (senderWallet.getBalance().compareTo(BigDecimal.valueOf(verificationResponse.getData().getAmount())) < 0)
                 throw new InsufficientFundsException("insufficient funds");
-            senderWallet.setBalance(senderWallet.getBalance().subtract(verificationResponse.getData().getAmount()));
+            senderWallet.setBalance(senderWallet.getBalance().subtract(BigDecimal.valueOf(verificationResponse.getData().getAmount())));
             walletOutputPort.saveWallet(senderWallet);
-            receiverWallet.setBalance(receiverWallet.getBalance().add(verificationResponse.getData().getAmount()));
+            receiverWallet.setBalance(receiverWallet.getBalance().add(BigDecimal.valueOf(verificationResponse.getData().getAmount())));
             walletOutputPort.saveWallet(receiverWallet);
             return verificationResponse;
         } catch (Exception e) {

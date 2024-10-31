@@ -1,7 +1,7 @@
-package africa.semicolon.walletapi.infrastructure.adapter.persistence.mapper;
+package africa.semicolon.walletapi.infrastructure.adapter.output.persistence.mapper;
 
 import africa.semicolon.walletapi.domain.model.User;
-import africa.semicolon.walletapi.infrastructure.adapter.persistence.entities.UserEntity;
+import africa.semicolon.walletapi.infrastructure.adapter.output.persistence.entities.UserEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

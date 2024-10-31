@@ -12,5 +12,5 @@ public class InitializePaymentResponse {
     private Boolean status;
     private String message;
     @JsonProperty("data")
-    private Data data;
+    private InitializeData data;
 }

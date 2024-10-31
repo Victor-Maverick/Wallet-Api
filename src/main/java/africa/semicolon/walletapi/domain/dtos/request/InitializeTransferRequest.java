@@ -12,6 +12,9 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @NoArgsConstructor
 public class InitializeTransferRequest {
-    private String email;
-    private BigDecimal amount;
+    private Long senderWalletId;
+    private Long receiverWalletId;
+    private double amount;
+    private String reason;
+
 }

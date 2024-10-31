@@ -1,10 +1,10 @@
-package africa.semicolon.walletapi.infrastructure.adapter;
+package africa.semicolon.walletapi.infrastructure.adapter.output.persistence;
 
 import africa.semicolon.walletapi.application.ports.output.WalletOutputPort;
 import africa.semicolon.walletapi.domain.model.Wallet;
-import africa.semicolon.walletapi.infrastructure.adapter.persistence.entities.WalletEntity;
-import africa.semicolon.walletapi.infrastructure.adapter.persistence.mapper.WalletPersistenceMapper;
-import africa.semicolon.walletapi.infrastructure.adapter.persistence.repository.WalletRepository;
+import africa.semicolon.walletapi.infrastructure.adapter.output.persistence.entities.WalletEntity;
+import africa.semicolon.walletapi.infrastructure.adapter.output.persistence.mapper.WalletPersistenceMapper;
+import africa.semicolon.walletapi.infrastructure.adapter.output.persistence.repository.WalletRepository;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Optional;

@@ -6,6 +6,5 @@ import java.util.Optional;
 
 public interface WalletOutputPort {
     Optional<Wallet> getWallet(Long id);
-
     Wallet saveWallet(Wallet wallet);
 }

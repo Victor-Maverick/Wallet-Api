@@ -1,26 +1,35 @@
 package africa.semicolon.walletapi.domain.services;
 
-import africa.semicolon.walletapi.application.ports.input.paymentUseCases.InitializePaymentUseCase;
-import africa.semicolon.walletapi.application.ports.input.paymentUseCases.VerifyPaymentUseCase;
+import africa.semicolon.walletapi.application.ports.input.paymentUseCases.paystackUseCases.InitializePaymentUseCase;
+import africa.semicolon.walletapi.application.ports.input.paymentUseCases.paystackUseCases.VerifyPaymentUseCase;
 import africa.semicolon.walletapi.domain.dtos.request.InitializePaymentRequest;
+import africa.semicolon.walletapi.domain.dtos.request.InitializeTransferRequest;
 import africa.semicolon.walletapi.domain.dtos.response.InitializePaymentResponse;
+import africa.semicolon.walletapi.domain.dtos.response.InitializeTransferResponse;
 import africa.semicolon.walletapi.domain.dtos.response.VerifyPaymentResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
+import lombok.RequiredArgsConstructor;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.springframework.http.*;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.HashMap;
+import java.util.Map;
 
 import static africa.semicolon.walletapi.domain.model.APIConstants.*;
 
+@RequiredArgsConstructor
 public class PaystackService implements InitializePaymentUseCase, VerifyPaymentUseCase {
+    private final RestTemplate restTemplate;
 
     @Override
     @Transactional
@@ -38,7 +47,7 @@ public class PaystackService implements InitializePaymentUseCase, VerifyPaymentU
             StringBuilder result = new StringBuilder();
             HttpResponse response = client.execute(post);
 
-            if (response.getStatusLine(). getStatusCode() == STATUS_CODE_OK) {
+            if (response.getStatusLine().getStatusCode() == STATUS_CODE_OK) {
                 BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
                 String line;
                 while ((line = rd.readLine()) != null) result.append(line);
@@ -47,16 +56,43 @@ public class PaystackService implements InitializePaymentUseCase, VerifyPaymentU
 
             ObjectMapper mapper = new ObjectMapper();
             initializePaymentResponse = mapper.readValue(result.toString(), InitializePaymentResponse.class);
-        } catch(Throwable ex) {
+            initializePaymentResponse.getData().setAmount(request.getAmount());
+        } catch (Throwable ex) {
             ex.printStackTrace();
         }
         return initializePaymentResponse;
     }
 
     @Override
+    public InitializeTransferResponse initializeTransfer(InitializeTransferRequest request) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setBearerAuth(SECRET_KEY);
+
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put("source", "balance");
+        requestBody.put("reason", request.getReason());
+        requestBody.put("amount", request.getAmount());
+        requestBody.put("recipient", request.getReceiverWalletId());
+
+        HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestBody, headers);
+
+        ResponseEntity<String>responseEntity = restTemplate.exchange(PAYSTACK_INITIALIZE_TRANSFER, HttpMethod.POST, requestEntity, String.class);
+        ObjectMapper objectMapper = new ObjectMapper();
+        InitializeTransferResponse initializeTransferResponse = null;
+        try {
+            initializeTransferResponse = objectMapper.readValue(responseEntity.getBody(), InitializeTransferResponse.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return initializeTransferResponse;
+    }
+
+
+    @Override
     public VerifyPaymentResponse Verification(String reference) throws Exception {
         VerifyPaymentResponse paymentVerificationResponse = null;
-//        Payment payment  = null;
 
         try{
             HttpClient client = HttpClientBuilder.create().build();
@@ -78,13 +114,13 @@ public class PaystackService implements InitializePaymentUseCase, VerifyPaymentU
 
             ObjectMapper mapper = new ObjectMapper();
             paymentVerificationResponse = mapper.readValue(result.toString(), VerifyPaymentResponse.class);
-
             if (paymentVerificationResponse == null || !paymentVerificationResponse.isStatus()) {
                 throw new Exception("An error");
             }
         } catch (Exception ex) {
             throw new Exception("Error: "+ex);
         }
+        System.out.println(paymentVerificationResponse.getData().getTransferCode());
         return paymentVerificationResponse;
     }
 

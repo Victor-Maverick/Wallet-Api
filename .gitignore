@@ -29,7 +29,8 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
-/src/java/africa/semicolon/walletapi/domain/constants/model/ApiConstants.java
+/src/main/java/africa/semicolon/walletapi/domain/model/APIConstants.java
+/src/main/resources/secrets.properties
 
 ### VS Code ###
 .vscode/
