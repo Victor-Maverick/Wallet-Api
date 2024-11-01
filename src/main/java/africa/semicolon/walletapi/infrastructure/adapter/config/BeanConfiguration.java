@@ -57,12 +57,6 @@ public class BeanConfiguration {
     }
 
     @Bean
-    public PremblyUserService premblyUserService(final Cloudinary cloudinary){
-        return new PremblyUserService(cloudinary);
-    }
-
-
-    @Bean
     public Keycloak keycloak(){
         return KeycloakBuilder.builder()
                 .clientSecret(secretKey)
@@ -119,6 +113,10 @@ public class BeanConfiguration {
     @Bean
     public UserService userService(final PasswordEncoder passwordEncoder, final UserOutputPort userOutputPort, final WalletOutputPort walletOutputPort, final AuthService authService){
         return new UserService(passwordEncoder,userOutputPort, walletOutputPort, authService);
+    }
+    @Bean
+    public PremblyUserService premblyUserService(final Cloudinary cloudinary, final UserOutputPort userOutputPort, final UserPersistenceMapper userPersistenceMapper) {
+        return new PremblyUserService(cloudinary,userOutputPort);
     }
 }
 

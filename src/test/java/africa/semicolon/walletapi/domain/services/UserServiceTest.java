@@ -100,7 +100,7 @@ public class UserServiceTest {
         user.setLastName("Doe");
         user.setPassword("newPass!111");
         userService.updateUser("saan@gmail.com", user);
-        User existingUser = userOutputPort.getByEmail("asa@gmail.com").get();
+        User existingUser = userOutputPort.getByEmail("asa@gmail.com");
         assertThat(existingUser.getFirstName()).isEqualTo("John");
     }
 

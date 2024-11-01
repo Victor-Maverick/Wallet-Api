@@ -9,7 +9,6 @@ import africa.semicolon.walletapi.domain.dtos.response.UserResponse;
 import africa.semicolon.walletapi.domain.exception.InvalidPasswordException;
 import africa.semicolon.walletapi.domain.exception.PiggyWalletException;
 import africa.semicolon.walletapi.domain.exception.UserNameExistsException;
-import africa.semicolon.walletapi.domain.exception.UserNotFoundException;
 import africa.semicolon.walletapi.domain.model.User;
 import africa.semicolon.walletapi.domain.model.Wallet;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -34,15 +33,21 @@ public class UserService implements RegisterUserUseCase, LoginUseCase, GetUserUs
     private User buildRegistration(User user) {
         validateData(user);
         validateEmail(user.getEmail());
-        createUserRepresentation(user);
+        String keycloakId = createUserRepresentation(user);
+        user.setUserAuthId(keycloakId);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user = userOutputPort.save(user);
+        Wallet wallet = createWallet();
+        user.setWallet(wallet);
+        return userOutputPort.save(user);
+    }
+
+    private Wallet createWallet() {
         Wallet wallet = new Wallet();
         wallet.setPin(passwordEncoder.encode("0000"));
         wallet.setBalance(new BigDecimal("0.00"));
         wallet = walletOutputPort.saveWallet(wallet);
-        user.setWallet(wallet);
-        return userOutputPort.save(user);
+        return wallet;
     }
 
     private void validateData(User user) {
@@ -80,23 +85,27 @@ public class UserService implements RegisterUserUseCase, LoginUseCase, GetUserUs
         return userOutputPort.getByEmail(email);
     }
 
-    private void createUserRepresentation(User user) {
-        authService.registerUserRepresentation(user);
+    private String createUserRepresentation(User user) {
+        return authService.registerUserRepresentation(user);
     }
 
 
     @Override
     public User updateUser(String email, User user) {
         User userToUpdate = getUserByEmail(email);
+        validateAndMap(user, userToUpdate);
+        authService.updateUserRepresentation(email, userToUpdate);
+        userToUpdate.setPassword(passwordEncoder.encode(userToUpdate.getPassword()));
+        return userOutputPort.save(userToUpdate);
+    }
+
+    private static void validateAndMap(User user, User userToUpdate) {
         if(!user.getFirstName().trim().isEmpty())
             userToUpdate.setFirstName(user.getFirstName());
         if(!user.getLastName().trim().isEmpty())
             userToUpdate.setLastName(user.getLastName());
         if(!user.getPassword().trim().isEmpty())
             userToUpdate.setPassword(user.getPassword());
-        authService.updateUserRepresentation(email, userToUpdate);
-        userToUpdate.setPassword(passwordEncoder.encode(userToUpdate.getPassword()));
-        return userOutputPort.save(userToUpdate);
     }
 
     @Override

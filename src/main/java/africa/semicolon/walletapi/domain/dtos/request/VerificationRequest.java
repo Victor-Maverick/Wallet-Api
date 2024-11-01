@@ -1,6 +1,7 @@
 package africa.semicolon.walletapi.domain.dtos.request;
 
 import lombok.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @Setter
 @Getter
@@ -9,5 +10,6 @@ import lombok.*;
 @Builder
 public class VerificationRequest {
     private String nin;
-    private String imageUrl;
+    private String email;
+    private MultipartFile image;
 }

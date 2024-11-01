@@ -39,7 +39,6 @@ public class PaystackServiceTest {
         InitializePaymentResponse response1 = paystackService.initializePayment(request);
         VerifyPaymentResponse response = paystackService.Verification(response1.getData().getReference());
         assertThat(response).isNotNull();
-        System.out.println(response.getData());
         assertThat(response.getData()).isNotNull();
     }
     @Test

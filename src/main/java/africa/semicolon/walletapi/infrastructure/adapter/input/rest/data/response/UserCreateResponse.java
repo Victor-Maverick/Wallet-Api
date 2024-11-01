@@ -12,5 +12,6 @@ import java.math.BigDecimal;
 public class UserCreateResponse {
     private Long userId;
     private Long walletId;
+    private String userAuthId;
     private BigDecimal balance;
 }

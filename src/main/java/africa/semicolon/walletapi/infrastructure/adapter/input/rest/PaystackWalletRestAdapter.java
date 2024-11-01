@@ -5,6 +5,7 @@ import africa.semicolon.walletapi.application.ports.input.transactionUseCase.Get
 import africa.semicolon.walletapi.application.ports.input.transactionUseCase.GetTransactionUseCase;
 import africa.semicolon.walletapi.application.ports.input.walletUseCases.*;
 import africa.semicolon.walletapi.domain.dtos.request.DepositRequest;
+import africa.semicolon.walletapi.domain.dtos.response.ApiResponse;
 import africa.semicolon.walletapi.domain.dtos.response.InitializePaymentResponse;
 import africa.semicolon.walletapi.domain.dtos.response.TransactionResponse;
 import africa.semicolon.walletapi.domain.dtos.response.VerifyPaymentResponse;
@@ -32,14 +33,14 @@ public class PaystackWalletRestAdapter {
     @PostMapping("/initiateDeposit")
     public ResponseEntity<?> initiateDeposit(@RequestBody @Valid DepositRequest depositRequest) {
         InitializePaymentResponse response = initializeDepositUseCase.initializeDeposit(depositRequest);
-        return new ResponseEntity<>(response,OK);
+        return new ResponseEntity<>(new ApiResponse<>(true,response),OK);
     }
 
     @PostMapping("/verifyDeposit/{reference}/{walletId}")
     public ResponseEntity<?> verifyDeposit(@PathVariable String reference, @PathVariable Long walletId) {
         try {
             VerifyPaymentResponse response = depositUseCase.deposit(reference, walletId);
-            return new ResponseEntity<>(response,OK);
+            return new ResponseEntity<>(new ApiResponse<>(true,response),OK);
         }
         catch (Exception exception) {
             return new ResponseEntity<>(exception.getMessage(),BAD_REQUEST);
@@ -50,7 +51,7 @@ public class PaystackWalletRestAdapter {
     public ResponseEntity<?> getAllTransactions(@PathVariable Long walletId) {
         try{
             List<TransactionResponse> response = getAllTransactionsUseCase.getTransactions(walletId);
-            return new ResponseEntity<>(response,OK);
+            return new ResponseEntity<>(new ApiResponse<>(true,response),OK);
         }
         catch (Exception exception) {
             return new ResponseEntity<>(exception.getMessage(),BAD_REQUEST);
@@ -60,7 +61,7 @@ public class PaystackWalletRestAdapter {
     public ResponseEntity<?> getTransaction(@PathVariable Long id) {
         try{
             TransactionResponse response = getTransactionUseCase.getTransaction(id);
-            return new ResponseEntity<>(response,OK);
+            return new ResponseEntity<>(new ApiResponse<>(true,response),OK);
         }
         catch (PiggyWalletException exception) {
             return new ResponseEntity<>(exception.getMessage(),BAD_REQUEST);

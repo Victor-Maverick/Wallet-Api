@@ -11,6 +11,8 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.web.client.HttpClientErrorException;
@@ -24,6 +26,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class MonnifyService implements GenerateAccessTokenUseCase {
 
+    private static final Logger log = LoggerFactory.getLogger(MonnifyService.class);
     @Value("${monnify.api.key}")
     private String monnifyApiKey;
 
@@ -40,22 +43,14 @@ public class MonnifyService implements GenerateAccessTokenUseCase {
 
     @Override
     public MonnifyAuthenticateResponse generateAccessToken() {
-        ObjectMapper objectMapper = new ObjectMapper();
-        String authenticationUrl = baseUrl + "/auth/token";
-        String credentials = monnifyApiKey + ":" + monnifyApiSecret;
-        String base64Credentials = Base64.getEncoder().encodeToString(credentials.getBytes());
-        HttpClient client = HttpClientBuilder.create().build();
-        HttpPost request = new HttpPost(loginUrl);
-        request.setHeader("Authorization", "Basic " + base64Credentials);
-        try {
-            HttpResponse response = client.execute(request);
-            HttpEntity entity = (HttpEntity) response.getEntity();
-            String jsonResponse = EntityUtils.toString((org.apache.http.HttpEntity) entity);
-            return objectMapper.readValue(jsonResponse, MonnifyAuthenticateResponse.class);
-        } catch (IOException exception) {
-            throw new PiggyWalletException(exception.getMessage());
-        }
-
+        String encodedCredentials = monnifyApiKey +":"+ monnifyApiSecret;
+        encodedCredentials = Base64.getEncoder().encodeToString(encodedCredentials.getBytes());
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Content-Type", "application/json");
+        headers.set("Authorization", "Basic " + encodedCredentials);
+        HttpEntity<String> entity = new HttpEntity<>("{}",headers);
+        ResponseEntity<MonnifyAuthenticateResponse> response = restTemplate.exchange(loginUrl, HttpMethod.POST, entity, MonnifyAuthenticateResponse.class);
+        return response.getBody();
 
     }
 }

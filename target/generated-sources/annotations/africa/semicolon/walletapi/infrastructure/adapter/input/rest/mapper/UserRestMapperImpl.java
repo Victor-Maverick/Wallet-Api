@@ -28,6 +28,7 @@ public class UserRestMapperImpl implements UserRestMapper {
         userCreateResponse.userId( user.getUserId() );
         userCreateResponse.walletId( userWalletWalletId( user ) );
         userCreateResponse.balance( userWalletBalance( user ) );
+        userCreateResponse.userAuthId( user.getUserAuthId() );
 
         return userCreateResponse.build();
     }

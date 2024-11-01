@@ -27,6 +27,7 @@ public class UserPersistenceMapperImpl implements UserPersistenceMapper {
         userEntity.setLastName( user.getLastName() );
         userEntity.setEmail( user.getEmail() );
         userEntity.setPassword( user.getPassword() );
+        userEntity.setUserAuthId( user.getUserAuthId() );
 
         return userEntity;
     }
@@ -45,6 +46,7 @@ public class UserPersistenceMapperImpl implements UserPersistenceMapper {
         user.lastName( userEntity.getLastName() );
         user.email( userEntity.getEmail() );
         user.password( userEntity.getPassword() );
+        user.userAuthId( userEntity.getUserAuthId() );
 
         return user.build();
     }

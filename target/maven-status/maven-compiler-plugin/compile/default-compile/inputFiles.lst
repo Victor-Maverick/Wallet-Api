@@ -44,6 +44,7 @@ C:\Users\DELL\IdeaProjects\WalletApi\src\main\java\africa\semicolon\walletapi\ap
 C:\Users\DELL\IdeaProjects\WalletApi\src\main\java\africa\semicolon\walletapi\domain\model\Transaction.java
 C:\Users\DELL\IdeaProjects\WalletApi\src\main\java\africa\semicolon\walletapi\domain\dtos\response\DepositResponse.java
 C:\Users\DELL\IdeaProjects\WalletApi\src\main\java\africa\semicolon\walletapi\application\ports\input\userUseCases\keycloakUseCases\UpdateUserRepresentationUseCase.java
+C:\Users\DELL\IdeaProjects\WalletApi\src\main\java\africa\semicolon\walletapi\domain\dtos\response\ApiResponse.java
 C:\Users\DELL\IdeaProjects\WalletApi\src\main\java\africa\semicolon\walletapi\infrastructure\adapter\input\rest\data\response\UserQueryResponse.java
 C:\Users\DELL\IdeaProjects\WalletApi\src\main\java\africa\semicolon\walletapi\infrastructure\adapter\output\persistence\repository\TransactionRepository.java
 C:\Users\DELL\IdeaProjects\WalletApi\src\main\java\africa\semicolon\walletapi\application\ports\input\premblyUseCases\VerifyNinAndFaceUseCase.java
@@ -52,6 +53,7 @@ C:\Users\DELL\IdeaProjects\WalletApi\src\main\java\africa\semicolon\walletapi\in
 C:\Users\DELL\IdeaProjects\WalletApi\src\main\java\africa\semicolon\walletapi\domain\model\User.java
 C:\Users\DELL\IdeaProjects\WalletApi\src\main\java\africa\semicolon\walletapi\application\ports\output\WalletOutputPort.java
 C:\Users\DELL\IdeaProjects\WalletApi\src\main\java\africa\semicolon\walletapi\application\ports\input\transactionUseCase\GetTransactionUseCase.java
+C:\Users\DELL\IdeaProjects\WalletApi\src\main\java\africa\semicolon\walletapi\application\ports\input\userUseCases\keycloakUseCases\DeleteUserUseCase.java
 C:\Users\DELL\IdeaProjects\WalletApi\src\main\java\africa\semicolon\walletapi\infrastructure\adapter\output\persistence\entities\UserEntity.java
 C:\Users\DELL\IdeaProjects\WalletApi\src\main\java\africa\semicolon\walletapi\infrastructure\adapter\output\persistence\UserPersistenceAdapter.java
 C:\Users\DELL\IdeaProjects\WalletApi\src\main\java\africa\semicolon\walletapi\domain\dtos\request\TransferRequest.java

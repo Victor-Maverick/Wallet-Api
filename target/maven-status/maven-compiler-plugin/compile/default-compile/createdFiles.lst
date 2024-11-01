@@ -33,6 +33,7 @@ africa\semicolon\walletapi\application\ports\input\walletUseCases\DepositUseCase
 africa\semicolon\walletapi\domain\constants\Role.class
 africa\semicolon\walletapi\domain\dtos\response\InitializePaymentResponse.class
 africa\semicolon\walletapi\domain\exception\UserNameExistsException.class
+africa\semicolon\walletapi\domain\dtos\response\ApiResponse.class
 africa\semicolon\walletapi\domain\services\UserService.class
 africa\semicolon\walletapi\application\ports\input\paymentUseCases\paystackUseCases\VerifyPaymentUseCase.class
 africa\semicolon\walletapi\application\ports\input\walletUseCases\TransferUseCase.class
@@ -72,6 +73,7 @@ africa\semicolon\walletapi\application\ports\input\userUseCases\DeleteUserUseCas
 africa\semicolon\walletapi\infrastructure\adapter\output\persistence\mapper\UserPersistenceMapper.class
 africa\semicolon\walletapi\application\ports\input\walletUseCases\CreateWalletUseCase.class
 africa\semicolon\walletapi\application\ports\input\userUseCases\RegisterAdminUseCase.class
+africa\semicolon\walletapi\application\ports\input\userUseCases\keycloakUseCases\DeleteUserUseCase.class
 africa\semicolon\walletapi\domain\dtos\request\LoginRequest.class
 africa\semicolon\walletapi\domain\services\AuthService.class
 africa\semicolon\walletapi\domain\dtos\response\LoginResponse.class

@@ -3,5 +3,5 @@ package africa.semicolon.walletapi.application.ports.input.userUseCases.keycloak
 import africa.semicolon.walletapi.domain.model.User;
 
 public interface RegisterUserRepresentationUseCase {
-    void registerUserRepresentation(User user);
+    String registerUserRepresentation(User user);
 }

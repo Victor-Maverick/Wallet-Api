@@ -1,5 +1,6 @@
 package africa.semicolon.walletapi.domain.services;
 
+import africa.semicolon.walletapi.application.ports.input.userUseCases.keycloakUseCases.DeleteUserUseCase;
 import africa.semicolon.walletapi.application.ports.input.userUseCases.keycloakUseCases.GetUserResourceUseCase;
 import africa.semicolon.walletapi.application.ports.input.userUseCases.keycloakUseCases.RegisterUserRepresentationUseCase;
 import africa.semicolon.walletapi.application.ports.input.userUseCases.keycloakUseCases.UpdateUserRepresentationUseCase;
@@ -30,11 +31,9 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Slf4j
-public class AuthService implements RegisterUserRepresentationUseCase, UpdateUserRepresentationUseCase, GetUserResourceUseCase {
+public class AuthService implements RegisterUserRepresentationUseCase, UpdateUserRepresentationUseCase, GetUserResourceUseCase, DeleteUserUseCase {
     @Value("${app.keycloak.realm}")
     private String realm;
     @Value("${app.keycloak.admin.clientId}")
@@ -51,7 +50,7 @@ public class AuthService implements RegisterUserRepresentationUseCase, UpdateUse
 
 
     @Override
-    public void registerUserRepresentation(User user) {
+    public String registerUserRepresentation(User user) {
         UserRepresentation userRepresentation = buildUserRepresentation(user);
         CredentialRepresentation credentialRepresentation = new CredentialRepresentation();
         credentialRepresentation.setType(CredentialRepresentation.PASSWORD);
@@ -60,6 +59,7 @@ public class AuthService implements RegisterUserRepresentationUseCase, UpdateUse
         userRepresentation.setCredentials(List.of(credentialRepresentation));
         UsersResource usersResource = getUsersResource();
         usersResource.create(userRepresentation);
+        return userRepresentation.getId();
     }
 
     private static UserRepresentation buildUserRepresentation(User user) {
@@ -76,6 +76,7 @@ public class AuthService implements RegisterUserRepresentationUseCase, UpdateUse
     private UsersResource getUsersResource(){
         return keycloak.realm(realm).users();
     }
+
 
     public LoginResponse login(LoginRequest loginRequest) {
         RestTemplate restTemplate = new RestTemplate();
@@ -105,9 +106,7 @@ public class AuthService implements RegisterUserRepresentationUseCase, UpdateUse
     @Override
     public void updateUserRepresentation(String email, User user) {
         UsersResource usersResource = getUsersResource();
-        UserRepresentation userRepresentation
-                = keycloak.realm(realm).users().search(null, null, null, email, 0, 1)
-                .stream().findFirst().get();
+        UserRepresentation userRepresentation = getUserRepresentation(email);
         userRepresentation.setFirstName(user.getFirstName());
         userRepresentation.setLastName(user.getLastName());
         CredentialRepresentation passwordRepresentation = new CredentialRepresentation();
@@ -118,6 +117,11 @@ public class AuthService implements RegisterUserRepresentationUseCase, UpdateUse
         usersResource.get(userRepresentation.getId()).update(userRepresentation);
     }
 
+    private UserRepresentation getUserRepresentation(String email) {
+        List<UserRepresentation> users = getUsersResource().searchByUsername(email,true);
+        return users.get(0);
+    }
+
     @Override
     public UserResource getUser(String userId) {
         UsersResource usersResource = getUsersResource();
@@ -125,8 +129,7 @@ public class AuthService implements RegisterUserRepresentationUseCase, UpdateUse
     }
 
     public void assignRole(String email, Role role) {
-        List<UserRepresentation> users = getUsersResource().searchByUsername(email,true);
-        UserRepresentation userRepresentation = users.get(0);
+        UserRepresentation userRepresentation = getUserRepresentation(email);
         RolesResource rolesResource = getRolesResource();
         UserResource user = getUser(userRepresentation.getId());
         RoleRepresentation keycloakRole = rolesResource.get(String.valueOf(role)).toRepresentation();
@@ -135,5 +138,11 @@ public class AuthService implements RegisterUserRepresentationUseCase, UpdateUse
 
     private RolesResource getRolesResource(){
         return keycloak.realm(realm).roles();
+    }
+
+    @Override
+    public void delete(String userId) {
+        UsersResource usersResource = getUsersResource();
+        usersResource.delete(userId);
     }
 }
