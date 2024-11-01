@@ -31,6 +31,5 @@ build/
 
 /src/main/java/africa/semicolon/walletapi/domain/model/APIConstants.java
 /src/main/resources/secrets.properties
-
 ### VS Code ###
 .vscode/

@@ -1,6 +1,7 @@
 package africa.semicolon.walletapi.infrastructure.adapter.output.persistence;
 
 import africa.semicolon.walletapi.application.ports.output.UserOutputPort;
+import africa.semicolon.walletapi.domain.exception.PiggyWalletException;
 import africa.semicolon.walletapi.domain.model.User;
 import africa.semicolon.walletapi.infrastructure.adapter.output.persistence.entities.UserEntity;
 import africa.semicolon.walletapi.infrastructure.adapter.output.persistence.mapper.UserPersistenceMapper;
@@ -8,7 +9,6 @@ import africa.semicolon.walletapi.infrastructure.adapter.output.persistence.repo
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -23,19 +23,17 @@ public class UserPersistenceAdapter implements UserOutputPort {
     }
 
     @Override
-    public Optional<User> getById(Long id) {
-        final Optional<UserEntity>userEntity = userRepository.findById(id);
-        if (userEntity.isEmpty()) return Optional.empty();
-        final User user = this.userPersistenceMapper.toUser(userEntity.get());
-        return Optional.of(user);
+    public User getById(Long id) {
+        final UserEntity userEntity = userRepository.findById(id)
+                .orElseThrow(()-> new PiggyWalletException("user not found"));
+        return this.userPersistenceMapper.toUser(userEntity);
     }
 
     @Override
-    public Optional<User> getByEmail(String email) {
-        final Optional<UserEntity>userEntity = userRepository.findByEmail(email);
-        if (userEntity.isEmpty()) return Optional.empty();
-        final User user = this.userPersistenceMapper.toUser(userEntity.get());
-        return Optional.of(user);
+    public User getByEmail(String email) {
+        final UserEntity userEntity = userRepository.findByEmail(email)
+                .orElseThrow(()-> new PiggyWalletException("user not found"));
+        return this.userPersistenceMapper.toUser(userEntity);
     }
 
     @Override

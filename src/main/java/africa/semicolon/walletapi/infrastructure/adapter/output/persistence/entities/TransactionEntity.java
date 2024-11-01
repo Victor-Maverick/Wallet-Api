@@ -12,6 +12,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 
+import static jakarta.persistence.CascadeType.ALL;
 import static jakarta.persistence.CascadeType.PERSIST;
 import static jakarta.persistence.GenerationType.SEQUENCE;
 
@@ -26,7 +27,7 @@ public class TransactionEntity {
     private Long id;
     private BigDecimal amount;
     private TransactionType type;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private WalletEntity wallet;
     @Setter(AccessLevel.NONE)
     @JsonSerialize(using = LocalDateTimeSerializer.class)

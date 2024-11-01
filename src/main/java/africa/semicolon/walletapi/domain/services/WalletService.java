@@ -5,7 +5,6 @@ import africa.semicolon.walletapi.application.ports.output.TransactionOutputPort
 import africa.semicolon.walletapi.application.ports.output.WalletOutputPort;
 import africa.semicolon.walletapi.domain.dtos.request.DepositRequest;
 import africa.semicolon.walletapi.domain.dtos.request.InitializePaymentRequest;
-import africa.semicolon.walletapi.domain.dtos.request.InitializeTransferRequest;
 import africa.semicolon.walletapi.domain.dtos.request.TransferRequest;
 import africa.semicolon.walletapi.domain.dtos.response.InitializePaymentResponse;
 import africa.semicolon.walletapi.domain.dtos.response.VerifyPaymentResponse;
@@ -14,42 +13,44 @@ import africa.semicolon.walletapi.domain.exception.InsufficientFundsException;
 import africa.semicolon.walletapi.domain.exception.WalletNoFoundException;
 import africa.semicolon.walletapi.domain.model.Transaction;
 import africa.semicolon.walletapi.domain.model.Wallet;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.AllArgsConstructor;
-import org.jetbrains.annotations.NotNull;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 import static africa.semicolon.walletapi.domain.constants.TransactionType.CREDIT;
 
 @AllArgsConstructor
 public class WalletService implements InitializeDepositUseCase,DepositUseCase, TransferUseCase, GetWalletUseCase {
-
     private final WalletOutputPort walletOutputPort;
     private final PaystackService paystackService;
     private final TransactionOutputPort transactionOutputPort;
 
 
+
     @Override
+    @Transactional
     public VerifyPaymentResponse deposit(String reference, Long walletId) throws Exception {
         VerifyPaymentResponse verificationResponse = paystackService.Verification(reference);
         Wallet wallet = getWallet(walletId);
+
         BigDecimal amount = BigDecimal.valueOf(verificationResponse.getData().getAmount());
         wallet.setBalance(wallet.getBalance().add(amount));
-        Transaction transaction = buildAndSaveTransaction(amount);
-        List<Transaction> transactions = wallet.getTransactions();
-        transactions.add(transaction);
-        wallet.setTransactions(transactions);
-        walletOutputPort.saveWallet(wallet);
+
+        wallet = walletOutputPort.saveWallet(wallet);
+        buildAndSaveTransaction(wallet, amount);
+
         return verificationResponse;
     }
 
-    private @NotNull Transaction buildAndSaveTransaction(BigDecimal amount) {
+    private void buildAndSaveTransaction(Wallet wallet, BigDecimal amount) {
         Transaction transaction = new Transaction();
         transaction.setType(CREDIT);
         transaction.setAmount(amount);
+        transaction.setWallet(wallet);
         transactionOutputPort.save(transaction);
-        return transaction;
     }
 
 

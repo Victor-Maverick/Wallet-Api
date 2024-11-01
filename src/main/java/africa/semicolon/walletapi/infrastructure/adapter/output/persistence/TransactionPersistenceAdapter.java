@@ -3,6 +3,7 @@ package africa.semicolon.walletapi.infrastructure.adapter.output.persistence;
 import africa.semicolon.walletapi.application.ports.output.TransactionOutputPort;
 import africa.semicolon.walletapi.application.ports.output.UserOutputPort;
 import africa.semicolon.walletapi.domain.dtos.response.TransactionResponse;
+import africa.semicolon.walletapi.domain.exception.PiggyWalletException;
 import africa.semicolon.walletapi.domain.model.Transaction;
 import africa.semicolon.walletapi.domain.model.User;
 import africa.semicolon.walletapi.infrastructure.adapter.output.persistence.entities.TransactionEntity;
@@ -34,16 +35,15 @@ public class TransactionPersistenceAdapter implements TransactionOutputPort {
 
     @Override
     public TransactionResponse getById(Long id) {
-        final Optional<TransactionEntity>transactionEntity = transactionRepository.findById(id);
-        return new TransactionResponse(transactionEntity.get());
+        final TransactionEntity transactionEntity = transactionRepository.findById(id)
+                .orElseThrow(()-> new PiggyWalletException("transaction not found"));
+        return new TransactionResponse(transactionEntity);
     }
 
     @Override
     public List<TransactionResponse> findAllTransactions(Long userId) {
-        User user = userOutputPort.getById(userId).orElseThrow();
-        log.info("user:"+user);
-        UserEntity userEntity = userPersistenceMapper.toUserEntity(user);
-        List<TransactionEntity> transactions = userEntity.getWalletEntity().getTransactions();
+        User user = userOutputPort.getById(userId);
+        List<TransactionEntity> transactions = transactionRepository.findAllForWallet(user.getWallet().getWalletId());
         return transactions
                 .stream().map(TransactionResponse::new)
                 .toList();

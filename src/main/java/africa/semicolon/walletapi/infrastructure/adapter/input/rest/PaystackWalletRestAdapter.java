@@ -46,7 +46,7 @@ public class PaystackWalletRestAdapter {
         }
     }
 
-    @GetMapping("/getAllTransactions{walletId}")
+    @GetMapping("/getAllTransactions/{walletId}")
     public ResponseEntity<?> getAllTransactions(@PathVariable Long walletId) {
         try{
             List<TransactionResponse> response = getAllTransactionsUseCase.getTransactions(walletId);
@@ -67,7 +67,7 @@ public class PaystackWalletRestAdapter {
         }
     }
 
-    @DeleteMapping("/deleteTransaction{id}")
+    @DeleteMapping("/deleteTransaction/{id}")
     public ResponseEntity<?> deleteTransaction(@PathVariable Long id) {
         try{
             deleteTransactionUseCase.deleteTransaction(id);

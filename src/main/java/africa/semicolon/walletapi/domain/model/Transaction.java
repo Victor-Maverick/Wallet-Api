@@ -22,7 +22,6 @@ public class Transaction {
     private Long id;
     private BigDecimal amount;
     private TransactionType type;
-    @ManyToOne(cascade = ALL)
     private Wallet wallet;
     @Setter(AccessLevel.NONE)
     @JsonSerialize(using = LocalDateTimeSerializer.class)

@@ -15,6 +15,7 @@ import africa.semicolon.walletapi.infrastructure.adapter.output.persistence.repo
 import africa.semicolon.walletapi.infrastructure.adapter.output.persistence.repository.WalletRepository;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import jakarta.persistence.EntityManager;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
 import org.springframework.beans.factory.annotation.Value;

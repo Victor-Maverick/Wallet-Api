@@ -66,7 +66,7 @@ public class UserService implements RegisterUserUseCase, LoginUseCase, GetUserUs
 
     @Override
     public void deleteUser(Long userId) {
-        User user = userOutputPort.getById(userId).get();
+        User user = userOutputPort.getById(userId);
         userOutputPort.deleteUser(user);
     }
 
@@ -77,7 +77,7 @@ public class UserService implements RegisterUserUseCase, LoginUseCase, GetUserUs
     }
 
     private User getUserByEmail(String email) {
-        return userOutputPort.getByEmail(email).orElseThrow(() -> new UserNotFoundException("user not found"));
+        return userOutputPort.getByEmail(email);
     }
 
     private void createUserRepresentation(User user) {
