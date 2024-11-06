@@ -3,11 +3,13 @@ package africa.semicolon.walletapi.domain.services;
 import africa.semicolon.walletapi.application.ports.output.UserOutputPort;
 import africa.semicolon.walletapi.domain.dtos.request.LoginRequest;
 import africa.semicolon.walletapi.domain.dtos.response.LoginResponse;
-import africa.semicolon.walletapi.domain.exception.InvalidPasswordException;
-import africa.semicolon.walletapi.domain.exception.UserNameExistsException;
-import africa.semicolon.walletapi.domain.exception.UserNotFoundException;
+import africa.semicolon.walletapi.domain.exception.InvalidPasswordApiException;
+import africa.semicolon.walletapi.domain.exception.UserNameExistsApiException;
+import africa.semicolon.walletapi.domain.exception.WalletApiException;
 import africa.semicolon.walletapi.domain.model.User;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -26,30 +28,36 @@ public class UserServiceTest {
     private UserOutputPort userOutputPort;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    private User registeredUser;
 
+    @BeforeEach
+    public void setUp(){
+        User user = new User();
+        user.setFirstName("mson");
+        user.setLastName("vic");
+        user.setEmail("victormsonter@gmail.com");
+        user.setPassword("Password11$");
+        user.setRole(USER);
+        user = userService.register(user);
+    }
+    @AfterEach
+    public void deleteUser(){
+        userService.deleteUser(registeredUser.getEmail());
+    }
     @Test
     public void registerTest() {
-        User user = User.builder()
-                .firstName("kriz")
-                .lastName("akaa")
-                .email("saan@gmail.com")
-                .password("Password11$")
-                .role(USER)
-                .build();
-        User registeredUser = userService.register(user);
         assertThat(registeredUser).isNotNull();
-        assertThat(registeredUser.getEmail()).isEqualTo(user.getEmail());
+        assertThat(registeredUser.getEmail()).isEqualTo("saan@gmail.com");
     }
 
     @Test
     public void registerExistingEmailTest() {
-        User user = User.builder()
-                .firstName("John")
-                .lastName("Doe")
-                .email("saan@gmail.com")
-                .password("password")
-                .build();
-        assertThrows(UserNameExistsException.class, ()-> userService.register(user));
+        User user = new User();
+                user.setFirstName("John");
+                user.setLastName("Doe");
+                user.setEmail("saan@gmail.com");
+                user.setPassword("password");
+        assertThrows(UserNameExistsApiException.class, ()-> userService.register(user));
     }
 
     @Test
@@ -66,7 +74,7 @@ public class UserServiceTest {
         LoginRequest loginRequest = new LoginRequest();
         loginRequest.setUsername("invalidUser@example.com");
         loginRequest.setPassword("Password!123");
-        assertThrows(UserNotFoundException.class, () -> userService.login(loginRequest));
+        assertThrows(WalletApiException.class, () -> userService.login(loginRequest));
     }
 
     @Test
@@ -74,7 +82,7 @@ public class UserServiceTest {
         LoginRequest loginRequest = new LoginRequest();
         loginRequest.setUsername("saan@gmail.com");
         loginRequest.setPassword("wrongPassword");
-        assertThrows(InvalidPasswordException.class, () -> userService.login(loginRequest));
+        assertThrows(InvalidPasswordApiException.class, () -> userService.login(loginRequest));
     }
 
     @Test
@@ -82,15 +90,15 @@ public class UserServiceTest {
         LoginRequest loginRequest = new LoginRequest();
         loginRequest.setUsername("");
         loginRequest.setPassword("Password!123");
-        assertThrows(UserNotFoundException.class, () -> userService.login(loginRequest));
+        assertThrows(WalletApiException.class, () -> userService.login(loginRequest));
     }
 
     @Test
     public void loginTest_ShouldThrowException_WhenPasswordIsEmpty() {
         LoginRequest loginRequest = new LoginRequest();
-        loginRequest.setUsername("mesh@gmail.com");
+        loginRequest.setUsername("saan@gmail.com");
         loginRequest.setPassword("");
-        assertThrows(InvalidPasswordException.class, () -> userService.login(loginRequest));
+        assertThrows(InvalidPasswordApiException.class, () -> userService.login(loginRequest));
     }
 
     @Test
@@ -100,7 +108,7 @@ public class UserServiceTest {
         user.setLastName("Doe");
         user.setPassword("newPass!111");
         userService.updateUser("saan@gmail.com", user);
-        User existingUser = userOutputPort.getByEmail("asa@gmail.com");
+        User existingUser = userOutputPort.getByEmail("saan@gmail.com");
         assertThat(existingUser.getFirstName()).isEqualTo("John");
     }
 

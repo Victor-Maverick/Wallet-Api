@@ -64,9 +64,5 @@ public class WebSecurityConfig {
             );
         };
     }
-    @Bean
-    public RestTemplate restTemplate() {
-        return new RestTemplate();
-    }
 
 }

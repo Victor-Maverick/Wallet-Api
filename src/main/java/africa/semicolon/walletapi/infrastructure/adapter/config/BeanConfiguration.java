@@ -1,12 +1,8 @@
 package africa.semicolon.walletapi.infrastructure.adapter.config;
 
-import africa.semicolon.walletapi.application.ports.output.TransactionOutputPort;
-import africa.semicolon.walletapi.application.ports.output.UserOutputPort;
-import africa.semicolon.walletapi.application.ports.output.WalletOutputPort;
+import africa.semicolon.walletapi.application.ports.output.*;
 import africa.semicolon.walletapi.domain.services.*;
-import africa.semicolon.walletapi.infrastructure.adapter.output.persistence.TransactionPersistenceAdapter;
-import africa.semicolon.walletapi.infrastructure.adapter.output.persistence.UserPersistenceAdapter;
-import africa.semicolon.walletapi.infrastructure.adapter.output.persistence.WalletPersistenceAdapter;
+import africa.semicolon.walletapi.infrastructure.adapter.*;
 import africa.semicolon.walletapi.infrastructure.adapter.output.persistence.mapper.TransactionPersistenceMapper;
 import africa.semicolon.walletapi.infrastructure.adapter.output.persistence.mapper.UserPersistenceMapper;
 import africa.semicolon.walletapi.infrastructure.adapter.output.persistence.mapper.WalletPersistenceMapper;
@@ -15,7 +11,6 @@ import africa.semicolon.walletapi.infrastructure.adapter.output.persistence.repo
 import africa.semicolon.walletapi.infrastructure.adapter.output.persistence.repository.WalletRepository;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
-import jakarta.persistence.EntityManager;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
 import org.springframework.beans.factory.annotation.Value;
@@ -68,18 +63,20 @@ public class BeanConfiguration {
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder(){
-        return new BCryptPasswordEncoder();
-    }
-    @Bean
-    public AuthService authService(final Keycloak keycloak){
-        return new AuthService(keycloak);
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
     }
 
     @Bean
-    public PaystackService paystackService(final RestTemplate restTemplate) {
-        return new PaystackService(restTemplate);
+    public MonnifyService monnifyService(final RestTemplate restTemplate, final UserOutputPort userOutputPort){
+        return new MonnifyService(restTemplate, userOutputPort);
     }
+
+    @Bean
+    public PasswordEncoder passwordEncoder(){
+        return new BCryptPasswordEncoder();
+    }
+
 
     @Bean
     public TransactionPersistenceAdapter transactionPersistenceAdapter(final TransactionRepository transactionRepository, final TransactionPersistenceMapper mapper, final UserOutputPort userOutputPort, final UserPersistenceMapper userPersistenceMapper){
@@ -87,18 +84,18 @@ public class BeanConfiguration {
     }
 
     @Bean
-    public TransactionService transactionService(final TransactionOutputPort transactionOutputPort, TransactionPersistenceMapper mapper){
-        return new TransactionService(transactionOutputPort, mapper);
+    public TransactionService transactionService(final TransactionOutputPort transactionOutputPort){
+        return new TransactionService(transactionOutputPort);
     }
 
     @Bean
-    public MonnifyService monnifyService(final RestTemplate restTemplate){
-        return new MonnifyService(restTemplate);
+    public PaystackAdapter paystackAdapter(final RestTemplate restTemplate){
+        return new PaystackAdapter(restTemplate);
     }
 
     @Bean
-    public WalletService walletService(final WalletOutputPort walletOutputPort, final PaystackService paystackService, final TransactionOutputPort transactionOutputPort) {
-        return new WalletService(walletOutputPort,paystackService, transactionOutputPort);
+    public WalletService walletService(final WalletOutputPort walletOutputPort,final PaymentPort paymentPort, final TransactionOutputPort transactionOutputPort){
+        return new WalletService(walletOutputPort, paymentPort,transactionOutputPort);
     }
 
     @Bean
@@ -110,13 +107,21 @@ public class BeanConfiguration {
     public UserPersistenceAdapter userPersistenceAdapter(final UserRepository userRepository, final UserPersistenceMapper userPersistenceMapper, final WalletRepository walletRepository, final WalletPersistenceMapper walletPersistenceMapper) {
         return new UserPersistenceAdapter(userRepository, userPersistenceMapper);
     }
+
     @Bean
-    public UserService userService(final PasswordEncoder passwordEncoder, final UserOutputPort userOutputPort, final WalletOutputPort walletOutputPort, final AuthService authService){
-        return new UserService(passwordEncoder,userOutputPort, walletOutputPort, authService);
+    public UserService userService(final PasswordEncoder passwordEncoder, final UserOutputPort userOutputPort, final WalletOutputPort walletOutputPort, final IdentityManagementPort identityManagementPort, final IdentityVerificationPort identityVerificationPort){
+        return new UserService(passwordEncoder,userOutputPort,walletOutputPort,identityManagementPort,identityVerificationPort);
     }
+
     @Bean
-    public PremblyUserService premblyUserService(final Cloudinary cloudinary, final UserOutputPort userOutputPort, final UserPersistenceMapper userPersistenceMapper) {
-        return new PremblyUserService(cloudinary,userOutputPort);
+    public PremblyAdapter identityVerificationAdapter(Cloudinary cloudinary, UserOutputPort userOutputPort){
+        return new PremblyAdapter(cloudinary,userOutputPort);
     }
+
+    @Bean
+    public KeycloakAdapter identityManagementAdapter(final Keycloak keycloak){
+        return new KeycloakAdapter(keycloak);
+    }
+
 }
 

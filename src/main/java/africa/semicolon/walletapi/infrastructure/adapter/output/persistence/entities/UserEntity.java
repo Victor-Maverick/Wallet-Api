@@ -26,5 +26,5 @@ public class UserEntity {
     private String password;
     private String userAuthId;
     @OneToOne
-    private WalletEntity walletEntity;
+    private WalletEntity wallet;
 }

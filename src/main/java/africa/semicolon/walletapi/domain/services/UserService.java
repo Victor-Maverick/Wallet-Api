@@ -1,33 +1,43 @@
 package africa.semicolon.walletapi.domain.services;
 
 import africa.semicolon.walletapi.application.ports.input.userUseCases.*;
+import africa.semicolon.walletapi.application.ports.input.userUseCases.identityVerificationUseCases.VerifyNinAndFaceUseCase;
+import africa.semicolon.walletapi.application.ports.output.IdentityManagementPort;
+import africa.semicolon.walletapi.application.ports.output.IdentityVerificationPort;
 import africa.semicolon.walletapi.application.ports.output.UserOutputPort;
 import africa.semicolon.walletapi.application.ports.output.WalletOutputPort;
 import africa.semicolon.walletapi.domain.dtos.request.LoginRequest;
+import africa.semicolon.walletapi.domain.dtos.request.VerificationRequest;
 import africa.semicolon.walletapi.domain.dtos.response.LoginResponse;
 import africa.semicolon.walletapi.domain.dtos.response.UserResponse;
-import africa.semicolon.walletapi.domain.exception.InvalidPasswordException;
-import africa.semicolon.walletapi.domain.exception.PiggyWalletException;
-import africa.semicolon.walletapi.domain.exception.UserNameExistsException;
+import africa.semicolon.walletapi.domain.exception.InvalidPasswordApiException;
+import africa.semicolon.walletapi.domain.exception.WalletApiException;
+import africa.semicolon.walletapi.domain.exception.UserNameExistsApiException;
 import africa.semicolon.walletapi.domain.model.User;
 import africa.semicolon.walletapi.domain.model.Wallet;
+import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
-public class UserService implements RegisterUserUseCase, LoginUseCase, GetUserUseCase, DeleteUserUseCase, UpdateUserUseCase, GetAllUsersUseCase {
-    private final PasswordEncoder passwordEncoder;
-    private final UserOutputPort userOutputPort;
-    private final WalletOutputPort walletOutputPort;
-    private final AuthService authService;
+
+@AllArgsConstructor
+@RequiredArgsConstructor
+public class UserService implements RegisterUserUseCase, LoginUseCase, GetUserUseCase, DeleteUserUseCase, UpdateUserUseCase, GetAllUsersUseCase, VerifyNinAndFaceUseCase {
+    PasswordEncoder passwordEncoder;
+    UserOutputPort userOutputPort;
+    WalletOutputPort walletOutputPort;
+    IdentityManagementPort identityManagementPort;
+    IdentityVerificationPort identityVerificationPort;
 
     @Override
     public User register(User user) {
-        User savedUser = buildRegistration(user);
-        savedUser.setRole(user.getRole());
-        authService.assignRole(savedUser.getEmail(), savedUser.getRole());
-        return savedUser;
+        user = buildRegistration(user);
+        user.setRole(user.getRole());
+        return user;
     }
 
     private User buildRegistration(User user) {
@@ -52,26 +62,20 @@ public class UserService implements RegisterUserUseCase, LoginUseCase, GetUserUs
 
     private void validateData(User user) {
         if(user.getEmail().trim().isEmpty() || user.getPassword().trim().isEmpty() || user.getFirstName().trim().isEmpty() || user.getLastName().trim().isEmpty())
-            throw new PiggyWalletException("fields should not be empty");
+            throw new WalletApiException("fields should not be empty");
     }
 
     private void validateEmail(String email) {
         boolean existsByEmail = userOutputPort.existsByEmail(email);
         if (existsByEmail)
-            throw new UserNameExistsException(email+" already exists");
+            throw new UserNameExistsApiException(email+" already exists");
     }
 
-
-    public UserService(PasswordEncoder passwordEncoder, UserOutputPort userOutputPort, WalletOutputPort walletOutputPort, AuthService authService) {
-        this.passwordEncoder = passwordEncoder;
-        this.userOutputPort = userOutputPort;
-        this.walletOutputPort = walletOutputPort;
-        this.authService = authService;
-    }
 
     @Override
-    public void deleteUser(Long userId) {
-        User user = userOutputPort.getById(userId);
+    public void deleteUser(String email) {
+        User user = userOutputPort.getByEmail(email);
+        identityManagementPort.deleteUser(email);
         userOutputPort.deleteUser(user);
     }
 
@@ -86,7 +90,7 @@ public class UserService implements RegisterUserUseCase, LoginUseCase, GetUserUs
     }
 
     private String createUserRepresentation(User user) {
-        return authService.registerUserRepresentation(user);
+        return identityManagementPort.registerUserRepresentation(user);
     }
 
 
@@ -94,7 +98,7 @@ public class UserService implements RegisterUserUseCase, LoginUseCase, GetUserUs
     public User updateUser(String email, User user) {
         User userToUpdate = getUserByEmail(email);
         validateAndMap(user, userToUpdate);
-        authService.updateUserRepresentation(email, userToUpdate);
+        identityManagementPort.updateUserRepresentation(email, userToUpdate);
         userToUpdate.setPassword(passwordEncoder.encode(userToUpdate.getPassword()));
         return userOutputPort.save(userToUpdate);
     }
@@ -112,8 +116,8 @@ public class UserService implements RegisterUserUseCase, LoginUseCase, GetUserUs
     public LoginResponse login(LoginRequest loginRequest) {
         User user = getUserByEmail(loginRequest.getUsername());
         if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword()))
-            throw new InvalidPasswordException("invalid credentials");
-        return authService.login(loginRequest);
+            throw new InvalidPasswordApiException("invalid credentials");
+        return identityManagementPort.login(loginRequest);
     }
 
     @Override
@@ -126,4 +130,8 @@ public class UserService implements RegisterUserUseCase, LoginUseCase, GetUserUs
     }
 
 
+    @Override
+    public String verifyNinAndFace(VerificationRequest request) throws IOException {
+        return identityVerificationPort.verifyNinAndFace(request);
+    }
 }

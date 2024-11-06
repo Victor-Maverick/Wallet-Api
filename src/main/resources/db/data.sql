@@ -2,7 +2,7 @@ truncate table wallet_entity cascade;
 truncate table user_entity cascade;
 truncate table transaction_entity cascade;
 
-insert into wallet_entity (id, balance, pin)values
+insert into wallet_entity (wallet_id, balance, pin)values
 (500, 400.00, '2222'),
 (501, 600.0, '1111'),
 (502, 500.0, '5555');

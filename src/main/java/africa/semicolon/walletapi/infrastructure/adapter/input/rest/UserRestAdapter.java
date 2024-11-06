@@ -1,16 +1,15 @@
 package africa.semicolon.walletapi.infrastructure.adapter.input.rest;
 
-import africa.semicolon.walletapi.application.ports.input.premblyUseCases.VerifyNinAndFaceUseCase;
 import africa.semicolon.walletapi.application.ports.input.userUseCases.DeleteUserUseCase;
 import africa.semicolon.walletapi.application.ports.input.userUseCases.GetAllUsersUseCase;
 import africa.semicolon.walletapi.application.ports.input.userUseCases.RegisterUserUseCase;
+import africa.semicolon.walletapi.application.ports.input.userUseCases.identityVerificationUseCases.VerifyNinAndFaceUseCase;
 import africa.semicolon.walletapi.domain.dtos.request.LoginRequest;
 import africa.semicolon.walletapi.domain.dtos.request.VerificationRequest;
 import africa.semicolon.walletapi.domain.dtos.response.ApiResponse;
 import africa.semicolon.walletapi.domain.dtos.response.LoginResponse;
 import africa.semicolon.walletapi.domain.dtos.response.UserResponse;
-import africa.semicolon.walletapi.domain.exception.PiggyWalletException;
-import africa.semicolon.walletapi.domain.model.APIConstants;
+import africa.semicolon.walletapi.domain.exception.WalletApiException;
 import africa.semicolon.walletapi.domain.model.User;
 import africa.semicolon.walletapi.domain.services.UserService;
 import africa.semicolon.walletapi.infrastructure.adapter.input.rest.data.request.UpdateUserRequest;
@@ -19,7 +18,6 @@ import africa.semicolon.walletapi.infrastructure.adapter.input.rest.mapper.UserR
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -38,8 +36,8 @@ public class UserRestAdapter {
     private final UserRestMapper userRestMapper;
     private final UserService userService;
     private final RegisterUserUseCase registerUserUseCase;
-    private final VerifyNinAndFaceUseCase verifyNinAndFaceUseCase;
     private final DeleteUserUseCase deleteUserUseCase;
+    private final VerifyNinAndFaceUseCase verifyNinAndFaceUseCase;
     private final GetAllUsersUseCase getAllUsersUseCase;
 
     @PostMapping("/register")
@@ -49,7 +47,7 @@ public class UserRestAdapter {
             user = registerUserUseCase.register(user);
             return new ResponseEntity<>(new ApiResponse<>(true,userRestMapper.toUserCreateResponse(user)), CREATED);
         }
-        catch(PiggyWalletException exception){
+        catch(WalletApiException exception){
             return new ResponseEntity<>(new ApiResponse<>(false,exception.getMessage()), BAD_REQUEST);
         }
     }
@@ -60,7 +58,7 @@ public class UserRestAdapter {
             LoginResponse loginResponse = userService.login(request);
             return new ResponseEntity<>(new ApiResponse<>(true,loginResponse), OK);
         }
-        catch (PiggyWalletException exception){
+        catch (WalletApiException exception){
             return new ResponseEntity<>(new ApiResponse<>(false,exception.getMessage()), BAD_REQUEST);
         }
     }
@@ -72,7 +70,7 @@ public class UserRestAdapter {
             User user = userRestMapper.toUser(updateUserRequest);
             userService.updateUser(email,user);
             return new ResponseEntity<>(new ApiResponse<>(true,userRestMapper.toUpdateUserResponse(user)), OK);
-        }catch(PiggyWalletException exception){
+        }catch(WalletApiException exception){
             return new ResponseEntity<>(new ApiResponse<>(false,exception.getMessage()), BAD_REQUEST);
         }
     }
@@ -83,7 +81,7 @@ public class UserRestAdapter {
             UserResponse response = userService.getUser(email);
             return new ResponseEntity<>(new ApiResponse<>(true,response), OK);
         }
-        catch (PiggyWalletException exception){
+        catch (WalletApiException exception){
             return new ResponseEntity<>(new ApiResponse<>(false,exception.getMessage()), BAD_REQUEST);
         }
     }
@@ -107,14 +105,14 @@ public class UserRestAdapter {
         }
     }
 
-    @DeleteMapping("/delete{id}")
+    @DeleteMapping("/delete{email}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> deleteUser(@PathVariable Long id){
+    public ResponseEntity<?> deleteUser(@PathVariable String email){
         try {
-            deleteUserUseCase.deleteUser(id);
+            deleteUserUseCase.deleteUser(email);
             return ResponseEntity.ok().build();
         }
-        catch (PiggyWalletException exception){
+        catch (WalletApiException exception){
             return new ResponseEntity<>(exception.getMessage(), BAD_REQUEST);
         }
     }

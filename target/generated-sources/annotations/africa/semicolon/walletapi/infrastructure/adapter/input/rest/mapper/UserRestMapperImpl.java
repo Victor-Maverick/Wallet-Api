@@ -54,15 +54,15 @@ public class UserRestMapperImpl implements UserRestMapper {
             return null;
         }
 
-        User.UserBuilder user = User.builder();
+        User user = new User();
 
-        user.role( userCreateRequest.getRole() );
-        user.firstName( userCreateRequest.getFirstName() );
-        user.lastName( userCreateRequest.getLastName() );
-        user.email( userCreateRequest.getEmail() );
-        user.password( userCreateRequest.getPassword() );
+        user.setRole( userCreateRequest.getRole() );
+        user.setFirstName( userCreateRequest.getFirstName() );
+        user.setLastName( userCreateRequest.getLastName() );
+        user.setEmail( userCreateRequest.getEmail() );
+        user.setPassword( userCreateRequest.getPassword() );
 
-        return user.build();
+        return user;
     }
 
     @Override
@@ -71,13 +71,13 @@ public class UserRestMapperImpl implements UserRestMapper {
             return null;
         }
 
-        User.UserBuilder user = User.builder();
+        User user = new User();
 
-        user.firstName( updateUserRequest.getNewFirstName() );
-        user.lastName( updateUserRequest.getNewLastName() );
-        user.password( updateUserRequest.getNewPassword() );
+        user.setFirstName( updateUserRequest.getNewFirstName() );
+        user.setLastName( updateUserRequest.getNewLastName() );
+        user.setPassword( updateUserRequest.getNewPassword() );
 
-        return user.build();
+        return user;
     }
 
     @Override

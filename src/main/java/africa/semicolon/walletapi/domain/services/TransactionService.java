@@ -1,6 +1,5 @@
 package africa.semicolon.walletapi.domain.services;
 
-import africa.semicolon.walletapi.application.ports.input.transactionUseCase.DeleteTransactionUseCase;
 import africa.semicolon.walletapi.application.ports.input.transactionUseCase.GetAllTransactionsUseCase;
 import africa.semicolon.walletapi.application.ports.input.transactionUseCase.GetTransactionUseCase;
 import africa.semicolon.walletapi.application.ports.output.TransactionOutputPort;
@@ -11,9 +10,8 @@ import lombok.AllArgsConstructor;
 import java.util.List;
 
 @AllArgsConstructor
-public class TransactionService implements GetTransactionUseCase,GetAllTransactionsUseCase, DeleteTransactionUseCase {
+public class TransactionService implements GetTransactionUseCase,GetAllTransactionsUseCase{
     private final TransactionOutputPort transactionOutputPort;
-    private final TransactionPersistenceMapper transactionPersistenceMapper;
 
     @Override
     public List<TransactionResponse> getTransactions(Long walletId) {
@@ -27,8 +25,5 @@ public class TransactionService implements GetTransactionUseCase,GetAllTransacti
         return transactionOutputPort.getById(transactionId);
     }
 
-    @Override
-    public void deleteTransaction(Long transactionId) {
-        transactionOutputPort.deleteTransaction(transactionId);
-    }
+
 }

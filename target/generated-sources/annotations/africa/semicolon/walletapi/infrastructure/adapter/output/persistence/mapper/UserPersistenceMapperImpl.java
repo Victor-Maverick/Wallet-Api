@@ -21,13 +21,13 @@ public class UserPersistenceMapperImpl implements UserPersistenceMapper {
 
         UserEntity userEntity = new UserEntity();
 
-        userEntity.setWalletEntity( walletToWalletEntity( user.getWallet() ) );
         userEntity.setUserId( user.getUserId() );
         userEntity.setFirstName( user.getFirstName() );
         userEntity.setLastName( user.getLastName() );
         userEntity.setEmail( user.getEmail() );
         userEntity.setPassword( user.getPassword() );
         userEntity.setUserAuthId( user.getUserAuthId() );
+        userEntity.setWallet( walletToWalletEntity( user.getWallet() ) );
 
         return userEntity;
     }
@@ -38,17 +38,17 @@ public class UserPersistenceMapperImpl implements UserPersistenceMapper {
             return null;
         }
 
-        User.UserBuilder user = User.builder();
+        User user = new User();
 
-        user.wallet( walletEntityToWallet( userEntity.getWalletEntity() ) );
-        user.userId( userEntity.getUserId() );
-        user.firstName( userEntity.getFirstName() );
-        user.lastName( userEntity.getLastName() );
-        user.email( userEntity.getEmail() );
-        user.password( userEntity.getPassword() );
-        user.userAuthId( userEntity.getUserAuthId() );
+        user.setWallet( walletEntityToWallet( userEntity.getWallet() ) );
+        user.setUserId( userEntity.getUserId() );
+        user.setFirstName( userEntity.getFirstName() );
+        user.setLastName( userEntity.getLastName() );
+        user.setEmail( userEntity.getEmail() );
+        user.setPassword( userEntity.getPassword() );
+        user.setUserAuthId( userEntity.getUserAuthId() );
 
-        return user.build();
+        return user;
     }
 
     protected WalletEntity walletToWalletEntity(Wallet wallet) {
